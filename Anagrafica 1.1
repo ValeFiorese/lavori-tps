@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Anagrafica Utente e Generazione</title>
+</head>
+<body>
+  <h2>Inserisci i dati utente</h2>
+
+  <form id="formUtente" onsubmit="event.preventDefault(); mostraGenerazione();">
+    <label>Nome: <input type="text" id="nome"></label><br><br>
+    <label>Cognome: <input type="text" id="cognome"></label><br><br>
+    <label>Indirizzo: <input type="text" id="indirizzo"></label><br><br>
+    <label>Città: <input type="text" id="citta"></label><br><br>
+    <label>CAP: <input type="text" id="cap"></label><br><br>
+    <label>Data di nascita: <input type="date" id="dataNascita"></label><br><br>
+    <button type="submit">Invia</button>
+  </form>
+
+  <h3 id="risultato"></h3>
+
+  <script>
+    function mostraGenerazione() {
+      const nome = document.getElementById('nome').value.trim();
+      const cognome = document.getElementById('cognome').value.trim();
+      const indirizzo = document.getElementById('indirizzo').value.trim();
+      const citta = document.getElementById('citta').value.trim();
+      const cap = document.getElementById('cap').value.trim();
+      const dataNascita = document.getElementById('dataNascita').value;
+
+      if (!nome || !cognome || !indirizzo || !citta || !cap || !dataNascita) {
+        document.getElementById('risultato').innerHTML = "Compila tutti i campi!";
+        return;
+      }
+
+      const anno = new Date(dataNascita).getFullYear();
+      if (isNaN(anno)) {
+        document.getElementById('risultato').innerHTML = "Data di nascita non valida!";
+        return;
+      }
+
+      let generazione = "";
+      if (anno >= 1901 && anno <= 1927) generazione = "Greatest Generation";
+      else if (anno >= 1928 && anno <= 1945) generazione = "Generazione Silenziosa";
+      else if (anno >= 1946 && anno <= 1964) generazione = "Baby Boomers";
+      else if (anno >= 1965 && anno <= 1980) generazione = "Generazione X";
+      else if (anno >= 1981 && anno <= 1996) generazione = "Millennials";
+      else if (anno >= 1997 && anno <= 2012) generazione = "Generazione Z";
+      else if (anno >= 2013) generazione = "Generazione Alpha";
+      else generazione = "Fuori intervallo definito";
+
+      document.getElementById('risultato').innerHTML = `
+        <strong>Dati inseriti:</strong><br>
+        Nome: ${nome} ${cognome}<br>
+        Indirizzo: ${indirizzo}, ${citta} (${cap})<br>
+        Anno di nascita: ${anno}<br>
+        <strong>Appartiene alla ${generazione}</strong>
+      `;
+    }
+  </script>
+
+</body>
+</html>
