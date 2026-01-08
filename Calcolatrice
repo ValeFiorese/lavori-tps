@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Calcolatrice</title>
+
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        #schermo {
+            width: 200px;
+            height: 40px;
+            font-size: 20px;
+            text-align: right;
+            margin-bottom: 10px;
+        }
+
+        #Calcolatrice {
+            display: grid;
+            grid-template-columns: repeat(4, 50px);
+            gap: 5px;
+        }
+
+        .pulsante {
+            width: 50px;
+            height: 40px;
+            border: 1px solid black;
+            text-align: center;
+            line-height: 40px;
+            cursor: pointer;
+            user-select: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <input type="text" id="schermo" disabled>
+
+    <div id="Calcolatrice">
+        <div class="pulsante" onclick="aggiungi('7')">7</div>
+        <div class="pulsante" onclick="aggiungi('8')">8</div>
+        <div class="pulsante" onclick="aggiungi('9')">9</div>
+        <div class="pulsante" onclick="aggiungi('/')">/</div>
+
+        <div class="pulsante" onclick="aggiungi('4')">4</div>
+        <div class="pulsante" onclick="aggiungi('5')">5</div>
+        <div class="pulsante" onclick="aggiungi('6')">6</div>
+        <div class="pulsante" onclick="aggiungi('*')">*</div>
+
+        <div class="pulsante" onclick="aggiungi('1')">1</div>
+        <div class="pulsante" onclick="aggiungi('2')">2</div>
+        <div class="pulsante" onclick="aggiungi('3')">3</div>
+        <div class="pulsante" onclick="aggiungi('-')">-</div>
+
+        <div class="pulsante" onclick="aggiungi('0')">0</div>
+        <div class="pulsante" onclick="aggiungi('.')">.</div>
+        <div class="pulsante" onclick="cancella()">C</div>
+        <div class="pulsante" onclick="aggiungi('+')">+</div>
+
+        <div class="pulsante" onclick="calcola()">=</div>
+    </div>
+
+    <script>
+        var schermo = document.getElementById("schermo");
+
+        function aggiungi(s) {
+            schermo.value += s;
+        }
+
+        function cancella() {
+            schermo.value = "";
+        }
+
+        function calcola() {
+            schermo.value = eval(schermo.value);
+        }
+    </script>
+
+</body>
+</html>
