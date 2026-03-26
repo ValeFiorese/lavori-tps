@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>Anagrafica 3.0</h1>
+<h2>Uso di input</h2>
+
+Nome: <input type="text" id="nome"><br>
+Cognome: <input type="text" id="cognome"><br>
+Età: <input type="text" id="eta"><br>
+Colore occhi: <input type="text" id="occhi"><br><br>
+
+<button onclick="salva()">Aggiungi</button>
+<br><br>
+
+<table border="1">
+<tr>
+<th>Nome</th>
+<th>Cognome</th>
+<th>Età</th>
+<th>Occhi</th>
+</tr>
+<tbody id="tabella">
+</tbody>
+</table>
+
+<script>
+const dati = [];
+
+function salva() {
+  const persona = {
+    nome: document.getElementById("nome").value,
+    cognome: document.getElementById("cognome").value,
+    eta: document.getElementById("eta").value,
+    occhi: document.getElementById("occhi").value
+  };
+
+  dati.push(persona);
+
+  let testo = "";
+
+  for (let i = 0; i < dati.length; i++) {
+    testo += "<tr>";
+    testo += "<td>" + dati[i].nome + "</td>";
+    testo += "<td>" + dati[i].cognome + "</td>";
+    testo += "<td>" + dati[i].eta + "</td>";
+    testo += "<td>" + dati[i].occhi + "</td>";
+    testo += "</tr>";
+  }
+
+  document.getElementById("tabella").innerHTML = testo;
+}
+</script>
+</body>
+</html>
