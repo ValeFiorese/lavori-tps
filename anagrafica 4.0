@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>Anagrafica 4.0 - Inserimento</h1>
+
+Nome: <input type="text" id="nome"><br>
+Cognome: <input type="text" id="cognome"><br>
+Età: <input type="text" id="eta"><br>
+Colore occhi: <input type="text" id="occhi"><br><br>
+
+<button onclick="salva()">Aggiungi</button>
+
+<script>
+function salva() {
+
+  // Recupero elenco dal localStorage (se esiste)
+  let elenco = localStorage.getItem("elenco");
+  elenco = elenco ? JSON.parse(elenco) : [];
+
+  const persona = {
+    nome: document.getElementById("nome").value,
+    cognome: document.getElementById("cognome").value,
+    eta: document.getElementById("eta").value,
+    occhi: document.getElementById("occhi").value
+  };
+
+  elenco.push(persona);
+
+  // Salvataggio nel localStorage
+  localStorage.setItem("elenco", JSON.stringify(elenco));
+
+  alert("Persona salvata!");
+}
+</script>
+</body>
+</html>
