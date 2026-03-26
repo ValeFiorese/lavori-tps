@@ -9,11 +9,11 @@ Età: <input type="text" id="eta"><br>
 Colore occhi: <input type="text" id="occhi"><br><br>
 
 <button onclick="salva()">Aggiungi</button>
+<button onclick="vai()">Vai alla visualizzazione</button>
 
 <script>
 function salva() {
 
-  // Recupero elenco dal localStorage (se esiste)
   let elenco = localStorage.getItem("elenco");
   elenco = elenco ? JSON.parse(elenco) : [];
 
@@ -26,10 +26,14 @@ function salva() {
 
   elenco.push(persona);
 
-  // Salvataggio nel localStorage
   localStorage.setItem("elenco", JSON.stringify(elenco));
 
   alert("Persona salvata!");
+}
+
+function vai() {
+  let pagina = "secondapagina.html";
+  document.location.href = pagina;
 }
 </script>
 </body>
