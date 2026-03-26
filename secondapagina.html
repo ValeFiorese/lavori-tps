@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>Anagrafica 4.0 - Visualizzazione</h1>
+
+<button onclick="vai()">Torna all'inserimento</button>
+
+<table border="1">
+<tr>
+<th>Nome</th>
+<th>Cognome</th>
+<th>Età</th>
+<th>Occhi</th>
+</tr>
+<tbody id="tabella">
+</tbody>
+</table>
+
+<script>
+let elenco = localStorage.getItem("elenco");
+elenco = elenco ? JSON.parse(elenco) : [];
+
+let testo = "";
+
+for (let i = 0; i < elenco.length; i++) {
+  testo += "<tr>";
+  testo += "<td>" + elenco[i].nome + "</td>";
+  testo += "<td>" + elenco[i].cognome + "</td>";
+  testo += "<td>" + elenco[i].eta + "</td>";
+  testo += "<td>" + elenco[i].occhi + "</td>";
+  testo += "</tr>";
+}
+
+document.getElementById("tabella").innerHTML = testo;
+
+function vai() {
+  let pagina = "anagrafica4.0.html";
+  document.location.href = pagina;
+}
+</script>
+
+</body>
+</html>
