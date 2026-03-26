@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .blocco{
+      border:1px solid black;
+      padding:10px;
+      margin:10px;
+      width:200px;
+      font-family: Arial;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Anagrafica - Importazione CSV</h1>
+<input type="file" id="file">
+<div id="contenitore"></div>
+
+<script>
+
+document.getElementById("file").addEventListener("change", importaCSV);
+
+function importaCSV(event){
+  const file = event.target.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function(e){
+    const testo = e.target.result;
+    const righe = testo.split("\n");
+    elenco = [];
+
+    for(let i = 1; i < righe.length; i++){
+      const dati = righe[i].split(",");
+      elenco.push({
+        nome: dati[0],
+        cognome: dati[1],
+        eta: dati[2],
+        cap: dati[3],
+        email: dati[4],
+        occhi: dati[5]
+      });
+    }
+
+    mostra();
+  };
+
+  reader.readAsText(file);
+}
+
+function mostra(){
+  const contenitore = document.getElementById("contenitore");
+  contenitore.innerHTML = "";
+
+  for(let i=0;i<elenco.length;i++){
+    const p = elenco[i];
+    const div = document.createElement("div");
+    div.className="blocco";
+    div.innerHTML = 
+      "Nome: "+p.nome+"<br>"+
+      "Cognome: "+p.cognome+"<br>"+
+      "Età: "+p.eta+"<br>"+
+      "CAP: "+p.cap+"<br>"+
+      "Email: "+p.email+"<br>"+
+      "Occhi: "+p.occhi;
+    contenitore.appendChild(div);
+  }
+}
+</script>
+
+</body>
+</html>
