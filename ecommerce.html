@@ -1,171 +1,64 @@
 <!DOCTYPE html>
+
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Configurazione Negozio</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Georgia, serif; background: #f5f0e8; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
-    .wrapper { background: #fff; border: 2px solid #2c2c2c; border-radius: 4px; padding: 3rem; width: 100%; max-width: 560px; box-shadow: 6px 6px 0 #2c2c2c; }
-    h1 { font-size: 1.8rem; color: #2c2c2c; margin-bottom: 0.3rem; }
-    .subtitle { color: #888; font-size: 0.9rem; margin-bottom: 2rem; font-style: italic; }
-    hr { border: none; border-top: 2px solid #eee; margin: 2rem 0; }
-    .section-title { font-size: 0.75rem; font-weight: bold; letter-spacing: 0.15em; text-transform: uppercase; color: #c0392b; margin-bottom: 1.2rem; }
-    .field { margin-bottom: 1.2rem; }
-    label { display: block; font-size: 0.85rem; color: #555; margin-bottom: 0.4rem; }
-    input[type="text"], select { width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #ccc; border-radius: 3px; font-family: Georgia, serif; font-size: 0.95rem; background: #fafafa; }
-    input:focus, select:focus { outline: none; border-color: #c0392b; }
-    .upload-box { border: 2px dashed #ccc; border-radius: 4px; padding: 1.5rem; text-align: center; cursor: pointer; position: relative; }
-    .upload-box:hover { border-color: #c0392b; background: #fff5f5; }
-    .upload-box input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-    .upload-icon { font-size: 2rem; margin-bottom: 0.4rem; }
-    .upload-text { color: #888; font-size: 0.85rem; }
-    .upload-text strong { color: #c0392b; }
-    #file-status { margin-top: 0.8rem; padding: 0.6rem; background: #eafaf1; border: 1px solid #27ae60; border-radius: 3px; color: #27ae60; font-size: 0.85rem; display: none; }
-    #file-error { margin-top: 0.8rem; padding: 0.6rem; background: #fdf0ef; border: 1px solid #e74c3c; border-radius: 3px; color: #e74c3c; font-size: 0.85rem; display: none; }
-    #preview-section { display: none; margin-top: 1rem; }
-    #preview-section table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
-    #preview-section th { background: #2c2c2c; color: #fff; padding: 0.4rem 0.6rem; text-align: left; }
-    #preview-section td { border-bottom: 1px solid #eee; padding: 0.4rem 0.6rem; color: #555; }
-    .btn { display: block; width: 100%; padding: 0.9rem; background: #c0392b; color: #fff; border: none; border-radius: 3px; font-size: 1rem; font-family: Georgia, serif; cursor: pointer; margin-top: 1.5rem; }
-    .btn:hover { background: #a93226; }
-    .note { font-size: 0.78rem; color: #aaa; text-align: center; margin-top: 1rem; font-style: italic; }
-  </style>
+  <title>Anagrafica Utente e Generazione</title>
 </head>
 <body>
-<div class="wrapper">
-  <h1>🛍️ Configurazione Negozio</h1>
-  <p class="subtitle">Carica il CSV dei prodotti e imposta le informazioni del negozio</p>
+  <h2>Inserisci i dati utente</h2>
 
-  <p class="section-title">1 — File Prodotti (CSV)</p>
-  <div class="field">
-    <label>Carica il file products.csv</label>
-    <div class="upload-box">
-      <input type="file" id="csv-input" accept=".csv">
-      <div class="upload-icon">📄</div>
-      <div class="upload-text">Trascina il file qui oppure <strong>clicca per scegliere</strong></div>
-    </div>
-    <div id="file-status"></div>
-    <div id="file-error"></div>
-  </div>
-  <div id="preview-section">
-    <p style="font-size:0.8rem;color:#888;margin-bottom:0.5rem;">Prodotti trovati nel CSV:</p>
-    <table id="preview-table"></table>
-  </div>
+  <form id="formUtente" onsubmit="event.preventDefault(); mostraGenerazione();">
+    <label>Nome: <input type="text" id="nome"></label><br><br>
+    <label>Cognome: <input type="text" id="cognome"></label><br><br>
+    <label>Indirizzo: <input type="text" id="indirizzo"></label><br><br>
+    <label>Città: <input type="text" id="citta"></label><br><br>
+    <label>CAP: <input type="text" id="cap"></label><br><br>
+    <label>Data di nascita: <input type="date" id="dataNascita"></label><br><br>
+    <button type="submit">Invia</button>
+  </form>
 
-  <hr>
+  <h3 id="risultato"></h3>
 
-  <p class="section-title">2 — Informazioni Negozio</p>
-  <div class="field">
-    <label>Nome del negozio</label>
-    <input type="text" id="store-name" value="TechShop Milano">
-  </div>
-  <div class="field">
-    <label>Slogan</label>
-    <input type="text" id="store-tagline" value="La tecnologia a portata di mano">
-  </div>
-  <div class="field">
-    <label>Categoria prodotti</label>
-    <input type="text" id="store-category" value="Elettronica">
-  </div>
-  <div class="field">
-    <label>Colore principale (es. #c0392b)</label>
-    <input type="text" id="store-color" value="#c0392b">
-  </div>
-  <div class="field">
-    <label>Valuta</label>
-    <select id="store-currency">
-      <option value="€" selected>Euro (€)</option>
-      <option value="$">Dollaro ($)</option>
-      <option value="£">Sterlina (£)</option>
-    </select>
-  </div>
+  <script>
+    function mostraGenerazione() {
+      const nome = document.getElementById('nome').value.trim();
+      const cognome = document.getElementById('cognome').value.trim();
+      const indirizzo = document.getElementById('indirizzo').value.trim();
+      const citta = document.getElementById('citta').value.trim();
+      const cap = document.getElementById('cap').value.trim();
+      const dataNascita = document.getElementById('dataNascita').value;
 
-  <button class="btn" onclick="salvaConfig()">✅ Salva e Vai al Negozio →</button>
-  <p class="note">I dati vengono salvati nel browser tramite localStorage</p>
-</div>
-
-<script>
-  function parseCSV(text) {
-    const lines = text.trim().split('\n');
-    const headers = lines[0].split(',').map(h => h.trim());
-    const required = ['marca','modello','descrizione','immagine','prezzo'];
-    for (const r of required) {
-      if (!headers.includes(r)) return null;
-    }
-    const products = [];
-    for (let i = 1; i < lines.length; i++) {
-      if (!lines[i].trim()) continue;
-      const vals = lines[i].split(',');
-      const obj = {};
-      headers.forEach((h, idx) => { obj[h] = (vals[idx] || '').trim(); });
-      products.push(obj);
-    }
-    return products;
-  }
-
-  document.getElementById('csv-input').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(ev) {
-      const products = parseCSV(ev.target.result);
-      const statusEl = document.getElementById('file-status');
-      const errorEl = document.getElementById('file-error');
-      const previewSection = document.getElementById('preview-section');
-      if (!products) {
-        errorEl.style.display = 'block';
-        errorEl.textContent = 'Errore: il CSV deve avere le colonne: marca, modello, descrizione, immagine, prezzo';
-        statusEl.style.display = 'none';
-        previewSection.style.display = 'none';
+      if (!nome || !cognome || !indirizzo || !citta || !cap || !dataNascita) {
+        document.getElementById('risultato').innerHTML = "Compila tutti i campi!";
         return;
       }
-      localStorage.setItem('shop_products', JSON.stringify(products));
-      statusEl.style.display = 'block';
-      statusEl.textContent = '✅ Caricati ' + products.length + ' prodotti da: ' + file.name;
-      errorEl.style.display = 'none';
-      previewSection.style.display = 'block';
-      const table = document.getElementById('preview-table');
-      table.innerHTML = '<tr><th>Marca</th><th>Modello</th><th>Prezzo</th></tr>' +
-        products.map(p => '<tr><td>' + p.marca + '</td><td>' + p.modello + '</td><td>' + p.prezzo + '</td></tr>').join('');
-    };
-    reader.readAsText(file);
-  });
 
-  function salvaConfig() {
-    const name = document.getElementById('store-name').value.trim();
-    if (!name) { alert('Inserisci il nome del negozio!'); return; }
-    const config = {
-      name: name,
-      tagline: document.getElementById('store-tagline').value.trim(),
-      category: document.getElementById('store-category').value.trim(),
-      color: document.getElementById('store-color').value.trim() || '#c0392b',
-      currency: document.getElementById('store-currency').value
-    };
-    localStorage.setItem('shop_config', JSON.stringify(config));
+      const anno = new Date(dataNascita).getFullYear();
+      if (isNaN(anno)) {
+        document.getElementById('risultato').innerHTML = "Data di nascita non valida!";
+        return;
+      }
 
-    // Prodotti demo se non caricato CSV
-    if (!localStorage.getItem('shop_products')) {
-      const demo = [
-        {marca:'Apple',modello:'iPhone 14',descrizione:'Smartphone con display OLED da 6.1 pollici e fotocamera da 12MP',immagine:'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400',prezzo:'899.00'},
-        {marca:'Samsung',modello:'Galaxy S23',descrizione:'Smartphone Android con schermo AMOLED da 6.4 pollici',immagine:'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400',prezzo:'799.00'},
-        {marca:'Sony',modello:'WH-1000XM5',descrizione:'Cuffie wireless con cancellazione del rumore fino a 30 ore',immagine:'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=400',prezzo:'349.00'},
-        {marca:'Apple',modello:'MacBook Air M2',descrizione:'Laptop ultrasottile con chip M2 e 8GB di RAM',immagine:'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400',prezzo:'1299.00'},
-        {marca:'Logitech',modello:'MX Master 3',descrizione:'Mouse wireless ergonomico per professionisti',immagine:'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400',prezzo:'99.00'},
-        {marca:'Samsung',modello:'Galaxy Tab S9',descrizione:'Tablet Android da 11 pollici con S Pen inclusa',immagine:'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400',prezzo:'699.00'}
-      ];
-      localStorage.setItem('shop_products', JSON.stringify(demo));
+      let generazione = "";
+      if (anno >= 1901 && anno <= 1927) generazione = "Greatest Generation";
+      else if (anno >= 1928 && anno <= 1945) generazione = "Generazione Silenziosa";
+      else if (anno >= 1946 && anno <= 1964) generazione = "Baby Boomers";
+      else if (anno >= 1965 && anno <= 1980) generazione = "Generazione X";
+      else if (anno >= 1981 && anno <= 1996) generazione = "Millennials";
+      else if (anno >= 1997 && anno <= 2012) generazione = "Generazione Z";
+      else if (anno >= 2013) generazione = "Generazione Alpha";
+      else generazione = "Fuori intervallo definito";
+
+      document.getElementById('risultato').innerHTML = `
+        <strong>Dati inseriti:</strong><br>
+        Nome: ${nome} ${cognome}<br>
+        Indirizzo: ${indirizzo}, ${citta} (${cap})<br>
+        Anno di nascita: ${anno}<br>
+        <strong>Appartiene alla ${generazione}</strong>
+      `;
     }
-    alert('Configurazione salvata! Vai al negozio.');
-    window.location.href = 'index.html';
-  }
+  </script>
 
-  function vaiVisualizza() {
-  document.location.href = "e-index.html";
-  document.location.href = "e-product.html";
-  document.location.href = "e-cart.html";
-}
-</script>
 </body>
 </html>
