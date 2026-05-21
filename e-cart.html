@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrello</title>
+  <!-- jsPDF CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root { --color: #c0392b; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Georgia, serif; background: #f5f0e8; color: #2c2c2c; }
+    nav { background: var(--color); color: #fff; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    .nav-brand { font-size: 1.2rem; font-weight: bold; }
+    .back-btn { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.5); padding: 0.4rem 1rem; border-radius: 3px; cursor: pointer; font-family: Georgia, serif; font-size: 0.85rem; }
+    .back-btn:hover { background: rgba(255,255,255,0.3); }
+
+    .container { max-width: 800px; margin: 2rem auto; padding: 0 1.5rem; }
+    h1 { font-size: 2rem; margin-bottom: 0.3rem; }
+    .subtitle { color: #888; font-style: italic; margin-bottom: 2rem; font-size: 0.9rem; }
+
+    /* Tabella carrello */
+    .cart-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 2rem; }
+    .cart-table th { background: #2c2c2c; color: #fff; padding: 0.8rem 1rem; text-align: left; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    .cart-table td { padding: 0.9rem 1rem; border-bottom: 1px solid #eee; vertical-align: middle; }
+    .cart-table tr:last-child td { border-bottom: none; }
+    .cart-table tr:hover td { background: #fafafa; }
+    .item-img { width: 60px; height: 50px; object-fit: cover; border-radius: 3px; background: #eee; }
+    .item-name { font-weight: bold; font-size: 0.95rem; }
+    .item-brand { font-size: 0.78rem; color: var(--color); text-transform: uppercase; letter-spacing: 0.05em; }
+    .qty-control { display: flex; align-items: center; gap: 0.5rem; }
+    .qty-btn { background: var(--color); color: #fff; border: none; width: 26px; height: 26px; border-radius: 3px; cursor: pointer; font-size: 1rem; line-height: 1; }
+    .qty-btn:hover { background: #a93226; }
+    .qty-value { min-width: 24px; text-align: center; font-weight: bold; }
+    .remove-btn { background: transparent; color: #e74c3c; border: 1px solid #e74c3c; padding: 0.3rem 0.6rem; border-radius: 3px; cursor: pointer; font-size: 0.8rem; }
+    .remove-btn:hover { background: #e74c3c; color: #fff; }
+    .item-total { font-weight: bold; color: var(--color); }
+
+    /* Riepilogo */
+    .summary-box { background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .summary-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+    .summary-row:last-child { border: none; }
+    .summary-total { display: flex; justify-content: space-between; padding: 1rem 0 0; font-size: 1.3rem; font-weight: bold; }
+    .summary-total span:last-child { color: var(--color); }
+
+    /* Form acquisto */
+    .checkout-form { background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .form-title { font-size: 0.8rem; font-weight: bold; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color); margin-bottom: 1.2rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-field { margin-bottom: 1rem; }
+    label { display: block; font-size: 0.82rem; color: #555; margin-bottom: 0.3rem; }
+    input[type="text"], input[type="email"], input[type="tel"] {
+      width: 100%; padding: 0.65rem 0.9rem; border: 1.5px solid #ddd; border-radius: 3px;
+      font-family: Georgia, serif; font-size: 0.9rem; background: #fafafa;
+    }
+    input:focus { outline: none; border-color: var(--color); }
+
+    /* Bottoni */
+    .btn-pdf { display: block; width: 100%; padding: 1rem; background: var(--color); color: #fff; border: none; border-radius: 3px; font-size: 1.05rem; font-family: Georgia, serif; cursor: pointer; letter-spacing: 0.03em; }
+    .btn-pdf:hover { background: #a93226; }
+    .btn-pdf:disabled { background: #ccc; cursor: not-allowed; }
+    .btn-clear { display: block; width: 100%; padding: 0.7rem; background: transparent; color: #e74c3c; border: 1px solid #e74c3c; border-radius: 3px; font-size: 0.9rem; font-family: Georgia, serif; cursor: pointer; margin-top: 0.8rem; }
+    .btn-clear:hover { background: #e74c3c; color: #fff; }
+
+    /* Empty */
+    .empty-cart { text-align: center; padding: 4rem 2rem; background: #fff; border: 1px solid #ddd; border-radius: 4px; }
+    .empty-cart h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .empty-cart p { color: #888; margin-bottom: 1.5rem; }
+    .go-shop { background: var(--color); color: #fff; border: none; padding: 0.8rem 2rem; border-radius: 3px; cursor: pointer; font-family: Georgia, serif; font-size: 1rem; }
+
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .cart-table thead { display: none; }
+      .cart-table tr { display: block; margin-bottom: 1rem; border: 1px solid #eee; border-radius: 3px; }
+      .cart-table td { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 1rem; border-bottom: 1px solid #f5f5f5; }
+      .cart-table td::before { content: attr(data-label); font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand" id="nav-brand">🛍️ Carrello</div>
+  <button class="back-btn" onclick="window.location.href='index.html'">← Continua gli acquisti</button>
+</nav>
+
+<div class="container">
+  <h1>🛒 Il tuo Carrello</h1>
+  <p class="subtitle" id="cart-subtitle">Riepilogo dei prodotti selezionati</p>
+
+  <div id="cart-content"></div>
+</div>
+
+<script>
+  const { jsPDF } = window.jspdf;
+  let config = {};
+  let currency = '€';
+  let cart = [];
+
+  function loadConfig() {
+    try { config = JSON.parse(localStorage.getItem('shop_config')) || {}; } catch(e) {}
+    const color = config.color || '#c0392b';
+    document.documentElement.style.setProperty('--color', color);
+    currency = config.currency || '€';
+    if (config.name) {
+      document.getElementById('nav-brand').textContent = '🛍️ ' + config.name + ' — Carrello';
+      document.title = 'Carrello — ' + config.name;
+    }
+  }
+
+  function loadCart() {
+    try { cart = JSON.parse(localStorage.getItem('shop_cart')) || []; } catch(e) { cart = []; }
+    renderCart();
+  }
+
+  function renderCart() {
+    const container = document.getElementById('cart-content');
+    if (cart.length === 0) {
+      container.innerHTML =
+        '<div class="empty-cart">' +
+          '<div style="font-size:3rem;margin-bottom:1rem">🛒</div>' +
+          '<h2>Carrello vuoto</h2>' +
+          '<p>Non hai ancora aggiunto prodotti al carrello.</p>' +
+          '<button class="go-shop" onclick="window.location.href=\'index.html\'">Vai al negozio</button>' +
+        '</div>';
+      return;
+    }
+
+    const subtotale = cart.reduce((s, item) => s + parseFloat(item.prezzo) * (item.qty || 1), 0);
+    const spedizione = subtotale > 500 ? 0 : 9.99;
+    const totale = subtotale + spedizione;
+
+    const rows = cart.map((item, i) =>
+      '<tr>' +
+        '<td data-label="Prodotto"><img class="item-img" src="' + item.immagine + '" alt="' + item.modello + '" onerror="this.src=\'https://via.placeholder.com/60x50?text=img\'"></td>' +
+        '<td data-label="Nome"><div class="item-brand">' + item.marca + '</div><div class="item-name">' + item.modello + '</div></td>' +
+        '<td data-label="Prezzo">' + parseFloat(item.prezzo).toFixed(2) + ' ' + currency + '</td>' +
+        '<td data-label="Qtà"><div class="qty-control">' +
+          '<button class="qty-btn" onclick="cambiaQty(' + i + ', -1)">−</button>' +
+          '<span class="qty-value">' + (item.qty || 1) + '</span>' +
+          '<button class="qty-btn" onclick="cambiaQty(' + i + ', 1)">+</button>' +
+        '</div></td>' +
+        '<td data-label="Totale" class="item-total">' + (parseFloat(item.prezzo) * (item.qty || 1)).toFixed(2) + ' ' + currency + '</td>' +
+        '<td data-label=""><button class="remove-btn" onclick="rimuovi(' + i + ')">✕ Rimuovi</button></td>' +
+      '</tr>'
+    ).join('');
+
+    container.innerHTML =
+      '<table class="cart-table">' +
+        '<thead><tr><th>Img</th><th>Prodotto</th><th>Prezzo</th><th>Quantità</th><th>Totale</th><th></th></tr></thead>' +
+        '<tbody>' + rows + '</tbody>' +
+      '</table>' +
+
+      '<div class="summary-box">' +
+        '<div class="summary-row"><span>Subtotale</span><span>' + subtotale.toFixed(2) + ' ' + currency + '</span></div>' +
+        '<div class="summary-row"><span>Spedizione</span><span>' + (spedizione === 0 ? 'Gratuita 🎉' : spedizione.toFixed(2) + ' ' + currency) + '</span></div>' +
+        (subtotale <= 500 ? '<div style="font-size:0.78rem;color:#888;font-style:italic;padding:0.3rem 0">Spedizione gratuita per ordini sopra 500 ' + currency + '</div>' : '') +
+        '<div class="summary-total"><span>TOTALE</span><span>' + totale.toFixed(2) + ' ' + currency + '</span></div>' +
+      '</div>' +
+
+      '<div class="checkout-form">' +
+        '<div class="form-title">Dati per la spedizione</div>' +
+        '<div class="form-row">' +
+          '<div class="form-field"><label>Nome *</label><input type="text" id="f-nome" placeholder="Mario"></div>' +
+          '<div class="form-field"><label>Cognome *</label><input type="text" id="f-cognome" placeholder="Rossi"></div>' +
+        '</div>' +
+        '<div class="form-field"><label>Email *</label><input type="email" id="f-email" placeholder="mario.rossi@email.it"></div>' +
+        '<div class="form-row">' +
+          '<div class="form-field"><label>Indirizzo *</label><input type="text" id="f-indirizzo" placeholder="Via Roma 1"></div>' +
+          '<div class="form-field"><label>Città *</label><input type="text" id="f-citta" placeholder="Milano"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-field"><label>CAP</label><input type="text" id="f-cap" placeholder="20100"></div>' +
+          '<div class="form-field"><label>Telefono</label><input type="tel" id="f-tel" placeholder="+39 02 1234567"></div>' +
+        '</div>' +
+      '</div>' +
+
+      '<button class="btn-pdf" onclick="stampaPDF()">📄 Conferma e Stampa Ricevuta PDF</button>' +
+      '<button class="btn-clear" onclick="svuotaCarrello()">🗑️ Svuota carrello</button>';
+  }
+
+  function cambiaQty(idx, delta) {
+    cart[idx].qty = Math.max(1, (cart[idx].qty || 1) + delta);
+    localStorage.setItem('shop_cart', JSON.stringify(cart));
+    renderCart();
+  }
+
+  function rimuovi(idx) {
+    cart.splice(idx, 1);
+    localStorage.setItem('shop_cart', JSON.stringify(cart));
+    renderCart();
+  }
+
+  function svuotaCarrello() {
+    if (confirm('Vuoi svuotare il carrello?')) {
+      cart = [];
+      localStorage.setItem('shop_cart', JSON.stringify(cart));
+      renderCart();
+    }
+  }
+
+  function stampaPDF() {
+    const nome = document.getElementById('f-nome').value.trim();
+    const cognome = document.getElementById('f-cognome').value.trim();
+    const email = document.getElementById('f-email').value.trim();
+    const indirizzo = document.getElementById('f-indirizzo').value.trim();
+    const citta = document.getElementById('f-citta').value.trim();
+
+    if (!nome || !cognome || !email || !indirizzo || !citta) {
+      alert('Compila tutti i campi obbligatori (*)');
+      return;
+    }
+
+    const doc = new jsPDF();
+    const storeName = config.name || 'Negozio Online';
+    const color = config.color || '#c0392b';
+    const now = new Date();
+    const dataOra = now.toLocaleDateString('it-IT') + ' ' + now.toLocaleTimeString('it-IT');
+    const ordineNum = 'ORD-' + Date.now().toString().slice(-6);
+
+    // Header
+    doc.setFillColor(192, 57, 43);
+    doc.rect(0, 0, 210, 35, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text(storeName, 15, 20);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('RICEVUTA DI ACQUISTO', 15, 28);
+    doc.text('N. ' + ordineNum + '  —  ' + dataOra, 120, 28);
+
+    // Dati cliente
+    doc.setTextColor(44, 44, 44);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('DATI CLIENTE', 15, 50);
+    doc.setDrawColor(192, 57, 43);
+    doc.line(15, 52, 195, 52);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text('Nome: ' + nome + ' ' + cognome, 15, 60);
+    doc.text('Email: ' + email, 15, 67);
+    doc.text('Indirizzo: ' + indirizzo + ', ' + citta, 15, 74);
+
+    // Tabella prodotti
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text('PRODOTTI ORDINATI', 15, 90);
+    doc.line(15, 92, 195, 92);
+
+    // Intestazioni tabella
+    doc.setFillColor(44, 44, 44);
+    doc.rect(15, 95, 180, 8, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(8);
+    doc.text('MARCA', 18, 100.5);
+    doc.text('MODELLO', 48, 100.5);
+    doc.text('PREZZO', 120, 100.5);
+    doc.text('QTÀ', 150, 100.5);
+    doc.text('TOTALE', 170, 100.5);
+
+    doc.setTextColor(44, 44, 44);
+    doc.setFont('helvetica', 'normal');
+    let y = 110;
+    cart.forEach((item, i) => {
+      if (i % 2 === 0) {
+        doc.setFillColor(249, 245, 240);
+        doc.rect(15, y - 5, 180, 8, 'F');
+      }
+      const riga = parseFloat(item.prezzo) * (item.qty || 1);
+      doc.text(item.marca, 18, y);
+      doc.text(item.modello.substring(0, 30), 48, y);
+      doc.text(parseFloat(item.prezzo).toFixed(2) + ' ' + currency, 120, y);
+      doc.text(String(item.qty || 1), 153, y);
+      doc.text(riga.toFixed(2) + ' ' + currency, 170, y);
+      y += 9;
+    });
+
+    // Totali
+    const subtotale = cart.reduce((s, item) => s + parseFloat(item.prezzo) * (item.qty || 1), 0);
+    const spedizione = subtotale > 500 ? 0 : 9.99;
+    const totale = subtotale + spedizione;
+
+    y += 5;
+    doc.setDrawColor(192, 57, 43);
+    doc.line(15, y, 195, y);
+    y += 7;
+    doc.setFontSize(9);
+    doc.text('Subtotale:', 130, y);
+    doc.text(subtotale.toFixed(2) + ' ' + currency, 170, y);
+    y += 7;
+    doc.text('Spedizione:', 130, y);
+    doc.text(spedizione === 0 ? 'GRATUITA' : spedizione.toFixed(2) + ' ' + currency, 170, y);
+    y += 8;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setFillColor(192, 57, 43);
+    doc.rect(125, y - 6, 70, 10, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.text('TOTALE:', 130, y + 1);
+    doc.text(totale.toFixed(2) + ' ' + currency, 170, y + 1);
+
+    // Footer
+    doc.setTextColor(150, 150, 150);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.text('Grazie per il tuo acquisto! — ' + storeName, 105, 280, { align: 'center' });
+
+    doc.save('ricevuta_' + ordineNum + '.pdf');
+
+    // Svuota carrello dopo acquisto
+    setTimeout(() => {
+      if (confirm('Ordine completato! Vuoi svuotare il carrello?')) {
+        cart = [];
+        localStorage.setItem('shop_cart', JSON.stringify(cart));
+        renderCart();
+      }
+    }, 500);
+  }
+
+  loadConfig();
+  loadCart();
+</script>
+</body>
+</html>
