@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Convertitore in Euro</title>
+<style>:root{color-scheme:light dark}</style>
+</head>
+<body>
+<h2>Convertitore in Euro</h2>
+Divisa: <select id="divisa"></select><br><br>
+Quantità: <input id="quantita" value="100"><br><br>
+<b id="risultato"></b>
+
+<script>
+var tassi = {USD:1.1133,JPY:175.86,CZK:24.367,DKK:7.4741,GBP:0.83785,HUF:366.88,PLN:4.4045,RON:5.3508,SEK:11.056,CHF:0.9247,ISK:135.8,NOK:10.3475,TRY:55.4846,AUD:1.583,BRL:5.9307,CAD:1.5638,CNY:7.4217,HKD:8.7339,IDR:20235.79,ILS:3.4801,INR:106.0095,KRW:1492.35,MXN:20.7416,MYR:4.5389,NZD:1.9833,PHP:71.24,SGD:1.4274,THB:37.602,ZAR:18.5339};
+
+function riempi() {
+  for (var d in tassi) {
+    document.getElementById("divisa").add(new Option(d, d));
+  }
+  calcola();
+}
+
+function calcola() {
+  var d = document.getElementById("divisa").value;
+  var q = document.getElementById("quantita").value.replace(",", ".");
+  document.getElementById("risultato").innerHTML = (q / tassi[d]).toFixed(2) + " EUR";
+}
+
+document.getElementById("divisa").onchange = calcola;
+document.getElementById("quantita").oninput = calcola;
+
+fetch("https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml")
+  .then(function (r) { return r.text(); })
+  .then(function (testo) {
+    var xml = new DOMParser().parseFromString(testo, "text/xml");
+    var cube = xml.getElementsByTagName("Cube");
+    tassi = {};
+    for (var i = 0; i < cube.length; i++) {
+      if (cube[i].getAttribute("currency")) {
+        tassi[cube[i].getAttribute("currency")] = cube[i].getAttribute("rate");
+      }
+    }
+    riempi();
+  })
+  .catch(riempi);
+</script>
+</body>
+</html>
