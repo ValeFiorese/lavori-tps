@@ -6,37 +6,30 @@
 </head>
 <body>
 <h2>Convertitore in Euro</h2>
-Divisa: <select id="divisa"></select><br><br> <!-- scritta e menu a tendina vuoto (l'id serve a ritrovarlo) -->
-Quantità: <input id="quantita" value="100"><br><br> <!-- campo di testo con 100 già scritto -->
-<b id="risultato"></b> <!-- grassetto vuoto dove comparirà il risultato -->
+Divisa: <select id="divisa"></select><br><br>
+Quantità: <input id="quantita" value="100"><br><br>
+<b id="risultato"></b>
 
-<script> //inizio javascript
-var tassi = {USD:1.1133,JPY:175.86,CZK:24.367,DKK:7.4741,GBP:0.83785,HUF:366.88,PLN:4.4045,RON:5.3508,SEK:11.056,CHF:0.9247,ISK:135.8,NOK:10.3475,TRY:55.4846,AUD:1.583,BRL:5.9307,CAD:1.5638,CNY:7.4217,HKD:8.7339,IDR:20235.79,ILS:3.4801,INR:106.0095,KRW:1492.35,MXN:20.7416,MYR:4.5389,NZD:1.9833,PHP:71.24,SGD:1.4274,THB:37.602,ZAR:18.5339};
-//tassi di riserva se il download della BCE non va a buon fine
+<script>
+var tassi = {};
 
-function calcola() {  //funzione che calcola e mostra il risultato
-  var q = quantita.value.replace(",", "."); //legge importo e cambia virgola in punto
-  risultato.innerHTML = (q / tassi[divisa.value]).toFixed(2) + " EUR";  //divide per il tasso, arrotonda a due decimali e scrive il risultato
+function calcola() {
+  var q = quantita.value.replace(",", ".");
+  risultato.innerHTML = (q / tassi[divisa.value]).toFixed(2) + " EUR";
 }
 
-function riempi() { //funzione che riempie il menu
-  divisa.innerHTML = ""; //svuota il menu cosi non ci sono voci doppie
-  for (var d in tassi) divisa.add(new Option(d)); //per ogni divisa nella tabella aggiunge una voce al menu
-  calcola(); //calcola subito il primo risultato
-}
+divisa.onchange = quantita.oninput = calcola;
 
-divisa.onchange = quantita.oninput = calcola; //ricalcola quando cambi divisa o scrivi un importo
-riempi(); //riempie tutto il menu con la tabella di riserva
-
-fetch("https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml") //chiede alla BCE il file coi tassi di oggi
-  .then(function (r) { return r.text(); })  //quando arriva la risposta la legge come testo
-  .then(function (testo) { //quando il testo è pronto lo elabora
-    var c = new DOMParser().parseFromString(testo, "text/xml").querySelectorAll("Cube[currency]"); //trasforma il testo in XML e prende tutti i nodi che hanno una divisa
-    tassi = {}; //svuota la tabella di riserva
-    for (var i = 0; i < c.length; i++) tassi[c[i].getAttribute("currency")] = c[i].getAttribute("rate"); //per ogni nodo salva divisa e tasso nella tabella
-    riempi(); //riempie di nuovo il menu con i tassi aggiornati
-  })
-  .catch(function (e) { console.log("Errore download tassi:", e); }); //se il download fallisce (es. CORS) scrive l'errore nella console e resta la tabella di riserva
+fetch("https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml")
+  .then(function (r) { return r.text(); })
+  .then(function (testo) {
+    var c = new DOMParser().parseFromString(testo, "text/xml").querySelectorAll("Cube[currency]");
+    for (var i = 0; i < c.length; i++) {
+      tassi[c[i].getAttribute("currency")] = c[i].getAttribute("rate");
+      divisa.add(new Option(c[i].getAttribute("currency")));
+    }
+    calcola();
+  });
 </script>
 </body>
 </html>
