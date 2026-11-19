@@ -36,7 +36,7 @@ fetch("https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml") //chiede 
     for (var i = 0; i < c.length; i++) tassi[c[i].getAttribute("currency")] = c[i].getAttribute("rate"); //per ogni nodo salva divisa e tasso nella tabella
     riempi(); //riempie di nuovo il menu con i tassi aggiornati
   })
-  .catch(function (e) { console.log("Errore download tassi:", e); }); //se il download fallisce (es. CORS) scrive l'errore nella console e resta la tabella di riserva
+  .catch(function (e) { console.log("Errore download tassi:", e); }); //se il download fallisce scrive l'errore nella console e resta la tabella di riserva
 </script>
 </body>
 </html>
